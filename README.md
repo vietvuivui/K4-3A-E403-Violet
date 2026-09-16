@@ -4,14 +4,14 @@
 
 ## 👥 Thành viên nhóm & Phân công vai trò
 
-**Lớp:** 3A · **Phòng:** E403 · **Cụm:** 5 · **Track:** ____
+**Lớp:** 3A · **Phòng:** E403 · **Cụm:** 5 · **Track:** B2
 
 | Họ và Tên | Mã Học Viên | Vai trò chính | Phần việc đảm nhiệm trong dự án |
 |---|---|---|---|
-| Nguyễn Văn Quốc Việt | 2A202602973 |  |  |
-| Nguyễn Phát Thịnh | 2A202602645 |  |  |
-| Trần Thị Hải Yến  | 2A202602663 |  |  |
-| Lê Nguyễn Thái Dương | 2A202602383 |  |  |
+| Nguyễn Văn Quốc Việt | 2A202602973 | Nhóm trưởng · Product Owner | Chốt lát cắt, viết `spec.md` §1–§4 (impact, non-goals, automation, HAX/PAIR) · nộp CP1–CP5 · làm `demo-slides.pdf`, điều phối dry run |
+| Nguyễn Phát Thịnh | 2A202602645 | Research & Evidence | Mining `discord-pack` + chê bản tin bot hiện tại (số đếm, ≥5 ví dụ dẫn `msg_id`) · khảo sát ≥20 người · tìm ≥2 willing users |
+| Trần Thị Hải Yến  | 2A202602663 | Eval & QA | Viết `spec.md` §5–§7 (4 lớp chỗ khó, ≥8 kịch bản, quality bar) · dựng golden set ≥20 case trong `eval/`, chạy và phân tích kết quả · `validation/` |
+| Lê Nguyễn Thái Dương | 2A202602383 | AI Engineer · Prototype | Build `codebase/`: bản tin cho TA chạy end-to-end với lời gọi AI thật, lưu log · thể hiện 4 đường đi · quay video CP3 và video demo dự phòng CP5 |
 
 > Nhóm copy nguyên file README này về repo của mình, rồi điền bảng trên. Cột **Phần việc đảm nhiệm** ghi càng cụ thể càng tốt.
 
