@@ -3,59 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#313338" />
   <title>K4 · Discord Digest</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div id="workspace" class="workspace">
+<div id="workspace" class="workspace members-open">
+  <nav class="server-rail" aria-label="Danh sách server">
+    <button id="railHome" class="server-icon home-icon" aria-label="Trợ lý tra cứu" title="Trợ lý tra cứu"><i data-lucide="messages-square"></i></button>
+    <div class="rail-divider"></div>
+    <div id="guildRail" class="guild-rail"></div>
+    <div class="rail-divider"></div>
+    <button id="railReports" class="server-icon utility-icon" aria-label="Bản tin của bot" title="Bản tin của bot"><i data-lucide="newspaper"></i></button>
+    <button id="railInfo" class="server-icon utility-icon rail-bottom" aria-label="Thông tin bản lưu" title="Thông tin bản lưu"><i data-lucide="archive"></i></button>
+  </nav>
+
   <aside class="navigation" aria-label="Điều hướng">
-    <header class="brand"><div class="brand-mark" aria-hidden="true">K4</div><div><strong>Discord Digest</strong><small>Không gian học tập K4</small></div><button id="closeNavigation" class="icon-btn mobile-only" aria-label="Đóng điều hướng" title="Đóng">×</button></header>
-    <label class="field-label" for="guildSelect">SERVER</label>
-    <select id="guildSelect" aria-label="Chọn server"></select>
-    <div id="guildStats" class="nav-caption"></div>
+    <header class="server-header"><select id="guildSelect" aria-label="Chọn server"></select><i data-lucide="chevron-down"></i><button id="closeNavigation" class="icon-btn mobile-only" aria-label="Đóng điều hướng" title="Đóng"><i data-lucide="x"></i></button></header>
+    <div class="server-summary"><div class="server-avatar">K4</div><div><strong>Cộng đồng học tập K4</strong><small id="guildStats"></small></div></div>
+    <div class="nav-section-title"><i data-lucide="chevron-down"></i><span>DAILY DIGEST</span></div>
     <nav class="view-navigation">
-      <button id="assistantView" class="nav-item"><span aria-hidden="true">✦</span>Trợ lý tra cứu</button>
-      <button id="reportsView" class="nav-item"><span aria-hidden="true">▤</span>Bản tin của bot<span id="reportCount" class="nav-count"></span></button>
+      <button id="assistantView" class="nav-item"><i data-lucide="bot"></i><span>trợ-lý-tra-cứu</span><span class="app-label">APP</span></button>
+      <button id="reportsView" class="nav-item"><i data-lucide="newspaper"></i><span>bản-tin-hằng-ngày</span><span id="reportCount" class="nav-count"></span></button>
     </nav>
-    <div class="nav-section-title"><span>KÊNH ĐÃ THU THẬP</span><span id="channelCount"></span></div>
+    <div class="nav-section-title"><i data-lucide="chevron-down"></i><span>KÊNH VĂN BẢN</span><span id="channelCount"></span></div>
     <nav id="channelList" class="channel-list" aria-label="Kênh"></nav>
-    <footer class="nav-footer"><span class="status-dot"></span><div><strong>Bản lưu đã ẩn danh</strong><small id="archiveRange"></small></div></footer>
+    <div class="archive-caption"><i data-lucide="calendar-days"></i><span id="archiveRange"></span></div>
+    <footer class="nav-footer"><div class="local-avatar">K4</div><div class="local-user"><strong>Bản lưu K4</strong><small>Đã ẩn danh</small></div><button id="openArchiveInfo" class="icon-btn" aria-label="Thông tin dữ liệu" title="Thông tin dữ liệu"><i data-lucide="info"></i></button></footer>
   </aside>
 
   <main class="main">
     <header class="main-header">
-      <button id="openNavigation" class="icon-btn mobile-only" aria-label="Mở điều hướng" title="Điều hướng">☰</button>
-      <div class="heading"><div class="breadcrumb" id="breadcrumb">DISCORD K4</div><h1 id="viewTitle">Đang tải dữ liệu...</h1></div>
-      <span id="viewMeta" class="header-meta"></span>
-      <button id="openPins" class="icon-btn pins-toggle" aria-label="Tin đã ghim" title="Tin đã ghim" aria-controls="pinsPanel" aria-expanded="true"><span aria-hidden="true">📌</span><span id="pinCount">0</span></button>
+      <button id="openNavigation" class="icon-btn mobile-only" aria-label="Mở điều hướng" title="Điều hướng"><i data-lucide="menu"></i></button>
+      <span id="headingIcon" class="header-hash"><i data-lucide="hash"></i></span>
+      <div class="heading"><h1 id="viewTitle">Đang tải...</h1></div>
+      <span class="header-divider"></span><span id="viewMeta" class="header-meta"></span>
+      <div class="header-actions">
+        <button id="toggleFilters" class="icon-btn" aria-label="Bộ lọc tin nhắn" title="Bộ lọc tin nhắn" aria-expanded="false" aria-controls="archiveToolbar"><i data-lucide="sliders-horizontal"></i><span id="filterCount" class="filter-dot hidden"></span></button>
+        <button id="openPins" class="icon-btn pins-toggle" aria-label="Tin đã ghim" title="Tin đã ghim" aria-controls="pinsPanel" aria-expanded="false"><i data-lucide="pin"></i><span id="pinCount" class="pin-count">0</span></button>
+        <button id="toggleMembers" class="icon-btn members-toggle" aria-label="Tác giả trong server" title="Tác giả trong server" aria-controls="membersPanel" aria-expanded="true"><i data-lucide="users"></i></button>
+        <div class="search-field"><input id="messageSearch" type="search" aria-label="Tìm trong kênh" placeholder="Tìm kiếm" /><i data-lucide="search"></i></div>
+      </div>
     </header>
-    <section id="archiveToolbar" class="archive-toolbar" aria-label="Bộ lọc tin nhắn">
-      <div class="search-field"><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" aria-label="Tìm trong kênh" placeholder="Tìm nội dung, mã tin, tác giả..." /></div>
+    <section id="archiveToolbar" class="archive-toolbar hidden" aria-label="Bộ lọc tin nhắn">
       <div class="filter-row">
         <select id="dateFilter" aria-label="Ngày gửi"><option value="">Tất cả ngày</option></select>
         <select id="authorFilter" aria-label="Loại tác giả"><option value="">Mọi tác giả</option><option value="human">Người viết</option><option value="bot">Bot</option></select>
         <select id="topicFilter" aria-label="Chủ đề"><option value="">Mọi chủ đề</option></select>
-        <button id="clearFilters" class="icon-btn" aria-label="Xóa bộ lọc" title="Xóa bộ lọc">↺</button>
+        <button id="clearFilters" class="icon-btn" aria-label="Xóa bộ lọc" title="Xóa bộ lọc"><i data-lucide="rotate-ccw"></i></button>
       </div>
     </section>
-    <div id="resultBar" class="result-bar"><span id="resultCount"></span><span>UTC+7</span></div>
+    <div id="resultBar" class="result-bar hidden"><span id="resultCount"></span><span>UTC+7</span></div>
     <section id="messagesViewport" class="messages-viewport" aria-label="Nội dung kênh"><p class="empty-state">Đang đọc Discord pack...</p></section>
     <section class="composer-area">
-      <div class="composer-context"><label for="askScope">Phạm vi tra cứu</label><select id="askScope"><option value="channel">Kênh hiện tại</option><option value="guild">Server hiện tại</option><option value="all">Toàn bộ pack</option></select><span id="providerStatus"></span></div>
-      <form id="questionForm" class="composer"><input id="composerInput" maxlength="3000" aria-label="Câu hỏi cho trợ lý" placeholder="Hỏi về deadline, điểm danh, ghép đội..." autocomplete="off" required /><button id="sendMessage" class="send-btn" type="submit" aria-label="Gửi câu hỏi" title="Gửi câu hỏi">↑</button></form>
+      <div class="composer-context"><span class="composer-bot"><i data-lucide="bot"></i>Trợ lý K4</span><label class="sr-only" for="askScope">Phạm vi tra cứu</label><select id="askScope"><option value="channel">Kênh hiện tại</option><option value="guild">Server hiện tại</option><option value="all">Toàn bộ pack</option></select><span id="providerStatus"></span></div>
+      <form id="questionForm" class="composer"><span class="composer-prefix" aria-hidden="true"><i data-lucide="sparkles"></i></span><input id="composerInput" maxlength="3000" aria-label="Câu hỏi cho trợ lý" placeholder="Hỏi Trợ lý K4..." autocomplete="off" required /><button id="sendMessage" class="send-btn" type="submit" aria-label="Gửi câu hỏi" title="Gửi câu hỏi"><i data-lucide="send-horizontal"></i></button></form>
+      <div class="composer-footer"><span id="breadcrumb">Discord K4</span><span>Bản lưu · UTC+7</span></div>
     </section>
   </main>
 
+  <aside id="membersPanel" class="members-panel" aria-label="Tác giả trong server">
+    <div class="members-heading"><i data-lucide="users"></i><strong>Tác giả trong pack</strong><button id="closeMembers" class="icon-btn mobile-only" title="Đóng" aria-label="Đóng danh sách tác giả"><i data-lucide="x"></i></button></div>
+    <div id="memberList" class="member-list"></div>
+  </aside>
+
   <aside id="pinsPanel" class="pins-panel" aria-label="Thông tin cần theo dõi">
-    <header class="panel-heading"><div><small>THEO DÕI</small><h2>Thông tin quan trọng</h2></div><button id="closePins" class="icon-btn" aria-label="Đóng bảng ghim" title="Đóng">×</button></header>
+    <header class="panel-heading"><i data-lucide="pin"></i><h2>Tin nhắn đã ghim</h2><button id="closePins" class="icon-btn" aria-label="Đóng bảng ghim" title="Đóng"><i data-lucide="x"></i></button></header>
     <div class="pins-tabs" role="tablist" aria-label="Loại thông tin"><button id="savedTab" role="tab" aria-selected="true" aria-controls="pinsList" class="active">Đã ghim <span id="savedCount">0</span></button><button id="importantTab" role="tab" aria-selected="false" aria-controls="pinsList">Quan trọng <span id="importantCount">0</span></button></div>
-    <div class="pins-filters"><input id="pinSearch" type="search" placeholder="Tìm tin đã lưu..." aria-label="Tìm thông tin đã lưu" /><select id="pinChannel" aria-label="Lọc kênh đã ghim"><option value="">Tất cả server / kênh</option></select></div>
+    <div class="pins-filters"><input id="pinSearch" type="search" placeholder="Tìm tin nhắn..." aria-label="Tìm thông tin đã lưu" /><select id="pinChannel" aria-label="Lọc kênh đã ghim"><option value="">Tất cả server / kênh</option></select></div>
     <div class="analysis-status"><span id="analysisStatus">Phân loại cục bộ</span><button id="refreshImportance" class="text-btn" title="Phân tích tối đa 30 tin đang hiển thị">Phân tích AI</button></div>
     <div id="pinsList" class="pins-list" role="tabpanel" aria-labelledby="savedTab"></div>
-    <footer class="panel-footer">Ghim được lưu trên trình duyệt này.</footer>
+    <footer class="panel-footer"><i data-lucide="hard-drive"></i>Đã lưu trên trình duyệt này</footer>
   </aside>
 </div>
+<dialog id="archiveInfo" class="info-dialog"><header><h2>Thông tin bản lưu</h2><button id="closeArchiveInfo" class="icon-btn" title="Đóng" aria-label="Đóng thông tin"><i data-lucide="x"></i></button></header><div id="archiveInfoBody"></div></dialog>
 <div id="toast" class="toast hidden" role="status"></div>
+<script src="vendor/lucide.min.js"></script>
+<script src="vendor/marked.umd.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

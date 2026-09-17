@@ -35,6 +35,13 @@ chua noi dung that vao repository. Test trong source chi dung du lieu tu tao.
 
 ## Giao dien
 
+- Bo cuc theo Discord: thanh server, danh sach kenh, khung chat va danh sach
+  tac gia. Bang ghim mo tu thanh cong cu; bo loc co the thu gon.
+- Chon tac gia de tim tin cua ho. Thanh thao tac tren tin cho phep ghim,
+  hoi tro ly ve noi dung va sao chep ma nguon. Cac tin lien tiep cung tac
+  gia duoc nhom gon. Markdown hien thi chu dam, danh sach, code va lien ket;
+  HTML tho, anh tu xa va lien ket khong phai HTTP(S) khong duoc kich hoat.
+
 - Server, kenh va so tin duoc tao truc tiep tu CSV. Giu nguyen ma kenh,
   ma tac gia; khong suy doan ten kenh hoac vai tro TA/BTC.
 - Loc theo ngay, nguoi/bot, chu de; tim noi dung, ma tin va ma tac gia.

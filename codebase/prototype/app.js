@@ -3,8 +3,41 @@ const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&
 const normalize = value => String(value || "").toLowerCase().replace(/đ/g,"d").normalize("NFD").replace(/\p{Diacritic}/gu,"");
 const labels = { schedule:"Lịch / Workshop",deadline:"Deadline",assignment:"Phân công",decision:"Quyết định",announcement:"Thông báo",attendance:"Điểm danh / XP",support:"Ticket / Hỗ trợ",team:"Ghép đội",lab:"Lab / CVAT",other:"Trao đổi" };
 const storageKey = "violet-discord-archive-v2";
+const icon = name => lucide.createElement(lucide.icons[name],{"aria-hidden":"true","stroke-width":1.8,class:"lucide"}).outerHTML;
+const avatarTone = author => [...author].reduce((sum,char)=>sum+char.charCodeAt(0),0)%6;
+const avatarHtml = (author,bot=false) => `<div class="avatar tone-${avatarTone(author)} ${bot ? "bot-avatar" : ""}" aria-hidden="true">${bot ? icon("Bot") : escapeHtml(author.slice(-2))}</div>`;
+lucide.createIcons({attrs:{"aria-hidden":"true","stroke-width":1.8}});
+marked.use({gfm:true,breaks:true,renderer:{
+  html({text}){return escapeHtml(text);},
+  image({text}){return `<span class="attachment-placeholder">${escapeHtml(text || "Hình đính kèm")}</span>`;},
+  link({href,tokens}){
+    const label=this.parser.parseInline(tokens);
+    try{
+      const url=new URL(href);
+      if(!["http:","https:"].includes(url.protocol))return label;
+      return `<a href="${escapeHtml(url.href)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+    }catch{return label;}
+  }
+}});
+
+function renderRichText(text){
+  const fragment=document.createElement("div");
+  fragment.innerHTML=marked.parse(String(text || ""));
+  const walker=document.createTreeWalker(fragment,NodeFilter.SHOW_TEXT);
+  const nodes=[];
+  while(walker.nextNode())nodes.push(walker.currentNode);
+  for(const node of nodes){
+    if(node.parentElement.closest("pre,code,a"))continue;
+    const parts=node.textContent.split(/(\[@(?:D\d+|BOT|user|role)\])/g);
+    if(parts.length===1)continue;
+    const replacement=document.createDocumentFragment();
+    parts.forEach((part,index)=>{if(index%2){const span=document.createElement("span");span.className="mention";span.textContent=part;replacement.append(span);}else replacement.append(document.createTextNode(part));});
+    node.replaceWith(replacement);
+  }
+  return fragment.innerHTML;
+}
 const state = { data:null, guild:"", channel:"", view:"channel", pins:new Set(), importance:{}, aiImportance:{},
-  pinView:"saved", limit:40, panelLimit:30, conversations:[], busy:false, analyzing:false };
+  pinView:"saved", limit:40, panelLimit:30, conversations:[], busy:false, analyzing:false, filtersOpen:false };
 const viewport = $("messagesViewport");
 let toastTimer;
 
@@ -61,10 +94,34 @@ function renderNavigation(){
   $("reportCount").textContent = state.data.reports.filter(r => r.guild === state.guild).length;
   $("channelList").innerHTML = guild.channels.map(channel => {
     const count = state.data.messages.filter(m => m.guild === state.guild && m.channel === channel).length;
-    return `<button class="nav-item channel-btn ${state.view === "channel" && channel === state.channel ? "active" : ""}" data-channel="${escapeHtml(channel)}"><span class="hash">#</span><span>${escapeHtml(channel)}</span><span class="nav-count">${count}</span></button>`;
+    return `<button class="nav-item channel-btn ${state.view === "channel" && channel === state.channel ? "active" : ""}" data-channel="${escapeHtml(channel)}">${icon("Hash")}<span>${escapeHtml(channel)}</span><span class="nav-count">${count}</span></button>`;
   }).join("");
   $("assistantView").classList.toggle("active",state.view === "assistant");
   $("reportsView").classList.toggle("active",state.view === "reports");
+  $("guildRail").innerHTML=state.data.guilds.map(g=>`<button class="server-icon guild-icon ${state.guild===g.id ? "active" : ""}" data-guild="${escapeHtml(g.id)}" title="${escapeHtml(g.id)}" aria-label="Server ${escapeHtml(g.id)}" aria-pressed="${state.guild===g.id}"><span>${escapeHtml(g.id.replace("K4-",""))}</span></button>`).join("");
+  renderMembers();
+}
+
+function renderMembers(){
+  const counts=new Map();
+  for(const m of state.data.messages.filter(m=>m.guild===state.guild)){
+    const entry=counts.get(m.author)||{author:m.author,bot:m.bot,count:0};entry.count++;counts.set(m.author,entry);
+  }
+  const people=[...counts.values()].sort((a,b)=>b.count-a.count);
+  const group=(bot,title)=>{
+    const rows=people.filter(m=>m.bot===bot);
+    return rows.length ? `<h3 class="member-group">${title} — ${rows.length}</h3>${rows.map(m=>`<button class="member-row" data-author="${escapeHtml(m.author)}" title="Xem tin của ${escapeHtml(m.author)}">${avatarHtml(m.author,m.bot)}<span class="member-name">${escapeHtml(m.author)}${m.bot ? '<span class="app-label">APP</span>' : ""}<small>${m.count} tin nhắn</small></span></button>`).join("")}` : "";
+  };
+  $("memberList").innerHTML=group(true,"ỨNG DỤNG")+group(false,"TÁC GIẢ ĐÃ ẨN DANH");
+}
+
+function updateFilters(){
+  const count=["dateFilter","authorFilter","topicFilter"].filter(id=>$(id).value).length;
+  $("filterCount").textContent=count;
+  $("filterCount").classList.toggle("hidden",!count);
+  $("archiveToolbar").classList.toggle("hidden",state.view!=="channel" || !state.filtersOpen);
+  $("toggleFilters").setAttribute("aria-expanded",String(state.filtersOpen));
+  $("resultBar").classList.toggle("hidden",state.view!=="channel" || !(count || $("messageSearch").value));
 }
 
 function badge(message){
@@ -75,20 +132,21 @@ function badge(message){
 
 function pinButton(message){
   const pinned = state.pins.has(message.id);
-  return `<button class="icon-btn message-pin" data-pin-id="${message.id}" aria-pressed="${pinned}" aria-label="${pinned ? "Bỏ ghim" : "Ghim tin nhắn"}" title="${pinned ? "Bỏ ghim" : "Ghim tin nhắn"}"><span aria-hidden="true">📌</span></button>`;
+  return `<button class="icon-btn message-pin" data-pin-id="${message.id}" aria-pressed="${pinned}" aria-label="${pinned ? "Bỏ ghim" : "Ghim tin nhắn"}" title="${pinned ? "Bỏ ghim" : "Ghim tin nhắn"}">${icon(pinned ? "PinOff" : "Pin")}</button>`;
 }
 
-function messageHtml(m){
+function messageHtml(m,compact=false){
   const parent = state.data.messages.find(p => p.id === m.reply_id);
   let reply = "";
   if(parent) reply = `<button class="reply-preview" data-origin-id="${parent.id}"><span aria-hidden="true">↳</span> ${escapeHtml(parent.author)} · ${escapeHtml(parent.source_id)} <span>${escapeHtml(parent.text.slice(0,100))}</span></button>`;
   else if(m.reply_state !== "none") reply = `<div class="reply-missing">↳ ${escapeHtml(m.reply_to || "Tin gốc")} · ${m.reply_state === "ambiguous" ? "Mã nguồn trùng, chưa xác định tin gốc" : "Tin gốc không có trong pack"}</div>`;
-  return `<article class="message ${m.bot ? "bot-message" : ""} ${state.pins.has(m.id) ? "is-pinned" : ""}" id="${m.id}" data-message-id="${m.id}">
-    <div class="avatar ${m.bot ? "bot-avatar" : ""}" aria-hidden="true">${m.bot ? "B" : escapeHtml(m.author.slice(-2))}</div>
-    <div class="message-body">${reply}<div class="message-head"><strong>${escapeHtml(m.author)}</strong>${m.bot ? '<span class="bot-tag">BOT · chưa xác minh</span>' : ""}<time datetime="${m.timestamp}">${m.time.slice(11)}</time><span class="source-id">${escapeHtml(m.source_id)}</span></div>
-    <div class="message-text">${escapeHtml(m.text)}</div>
-    ${m.attachments ? `<div class="attachment-note">▧ ${m.attachments} tệp đính kèm · Không có nội dung tệp trong pack</div>` : ""}
-    <div class="message-labels">${badge(m)}</div></div>${pinButton(m)}</article>`;
+  const text=renderRichText(m.text);
+  return `<article class="message ${compact ? "compact" : ""} ${m.bot ? "bot-message" : ""} ${state.pins.has(m.id) ? "is-pinned" : ""}" id="${m.id}" data-message-id="${m.id}">
+    ${avatarHtml(m.author,m.bot)}${compact ? `<time class="compact-time">${m.time.slice(11)}</time>` : ""}
+    <div class="message-body">${reply}<div class="message-head"><strong class="author-tone-${avatarTone(m.author)}">${escapeHtml(m.author)}</strong>${m.bot ? '<span class="bot-tag" title="Phản hồi của bot, chưa xác minh">APP</span>' : ""}<time datetime="${m.timestamp}" title="${escapeHtml(m.time)} UTC+7">${formatDate(m.date)} ${m.time.slice(11)}</time><span class="source-id">${escapeHtml(m.source_id)}</span></div>
+    <div class="message-text">${text}</div>
+    ${m.attachments ? `<div class="attachment-note">${icon("File")}<div><strong>${m.attachments} tệp đính kèm</strong><small>Nội dung tệp không có trong pack</small></div></div>` : ""}
+    <div class="message-labels">${badge(m)}</div></div><div class="message-tools">${pinButton(m)}<button class="icon-btn" data-quote-id="${m.id}" title="Hỏi trợ lý về tin này" aria-label="Hỏi trợ lý về tin này">${icon("MessageSquare")}</button><button class="icon-btn" data-copy-id="${m.id}" title="Sao chép mã nguồn" aria-label="Sao chép mã nguồn">${icon("Copy")}</button></div></article>`;
 }
 
 function renderChannel(highlightId){
@@ -100,12 +158,16 @@ function renderChannel(highlightId){
   }
   $("resultCount").textContent = `${rows.length.toLocaleString("vi")} tin${rows.length > shown.length ? ` · hiển thị ${shown.length} tin gần nhất` : ""}`;
   const humanCount = channelMessages().filter(m => !m.bot).length;
-  $("viewMeta").textContent = `${humanCount} tin người · ${channelMessages().length-humanCount} tin bot`;
+  $("viewMeta").textContent = `${channelMessages().length} tin nhắn · ${humanCount} từ người viết`;
+  updateFilters();
   let previousDate = "";
+  let previousMessage=null;
   const content = shown.map(m => {
     const divider = previousDate !== m.date ? `<div class="day-divider"><span>${formatDate(m.date)}</span></div>` : "";
+    const compact=previousMessage && previousMessage.author===m.author && previousDate===m.date && !m.reply_to && m.type!=="reply" && (new Date(m.timestamp)-new Date(previousMessage.timestamp))<420000;
     previousDate = m.date;
-    return divider + messageHtml(m);
+    previousMessage=m;
+    return divider + messageHtml(m,compact);
   }).join("");
   viewport.innerHTML = (rows.length > shown.length ? '<button id="loadEarlier" class="load-more">↑ Tin trước đó</button>' : "") + (content || '<div class="empty-state"><strong>Không có tin phù hợp</strong><p>Thử thay đổi từ khóa hoặc bộ lọc.</p></div>');
   if(highlightId){
@@ -143,9 +205,12 @@ function renderAssistant(){
 function renderView(highlightId){
   renderNavigation();
   $("breadcrumb").textContent = `${state.guild} / ${state.view === "channel" ? "TIN NHẮN" : "TỔNG HỢP"}`;
-  $("viewTitle").textContent = state.view === "channel" ? `# ${state.channel}` : state.view === "reports" ? "Bản tin của bot" : "Trợ lý tra cứu";
-  $("archiveToolbar").classList.toggle("hidden",state.view !== "channel");
-  $("resultBar").classList.toggle("hidden",state.view !== "channel");
+  $("viewTitle").textContent = state.view === "channel" ? state.channel : state.view === "reports" ? "bản-tin-hằng-ngày" : "trợ-lý-tra-cứu";
+  $("headingIcon").innerHTML=icon(state.view === "channel" ? "Hash" : state.view === "reports" ? "Newspaper" : "Bot");
+  $("composerInput").placeholder=`Hỏi Trợ lý K4 về #${state.channel}`;
+  $("messageSearch").disabled=state.view!=="channel";
+  $("toggleFilters").disabled=state.view!=="channel";
+  updateFilters();
   if(state.view === "channel") renderChannel(highlightId);
   else if(state.view === "reports") renderReports();
   else renderAssistant();
@@ -177,6 +242,7 @@ function panelRows(){
 function renderPins(){
   const importantCount = state.data.messages.filter(m => state.importance[m.id]?.important).length;
   $("pinCount").textContent = state.pins.size;
+  $("pinCount").classList.toggle("is-zero",state.pins.size===0);
   $("savedCount").textContent = state.pins.size;
   $("importantCount").textContent = importantCount;
   const rows = panelRows();
@@ -185,9 +251,24 @@ function renderPins(){
 }
 
 function setPanel(open){
+  const wasOpen=$("workspace").classList.contains("panel-open");
   $("workspace").classList.toggle("panel-open",open);
   $("openPins").setAttribute("aria-expanded",String(open));
-  if(!open) $("openPins").focus();
+  if(open){setMembers(false);if(state.data)renderPins();}
+  if(!open && wasOpen) $("openPins").focus();
+}
+
+function setMembers(open){
+  $("workspace").classList.toggle("members-open",open);
+  $("toggleMembers").setAttribute("aria-expanded",String(open));
+  if(open){$("workspace").classList.remove("panel-open");$("openPins").setAttribute("aria-expanded","false");}
+}
+
+function showArchiveInfo(){
+  if(!state.data)return;
+  const stats=state.data.stats;
+  $("archiveInfoBody").innerHTML=`<p class="info-guild">${escapeHtml(state.guild)}</p><dl><div><dt>Tin nhắn</dt><dd>${stats.messages.toLocaleString("vi")}</dd></div><div><dt>Server / kênh</dt><dd>${state.data.guilds.length} / ${stats.channels}</dd></div><div><dt>Tác giả</dt><dd>${stats.authors}</dd></div><div><dt>Bản tin bot</dt><dd>${stats.reports}</dd></div></dl><p>${formatDate(state.data.dates[0])} – ${formatDate(state.data.dates.at(-1))} · UTC+7</p><p>Tên người và kênh đã được ẩn danh. Vai trò và trạng thái trực tuyến không có trong dữ liệu. Phản hồi của bot cần được đối chiếu với nguồn gốc.</p>`;
+  $("archiveInfo").showModal();
 }
 
 async function askQuestion(event){
@@ -248,6 +329,19 @@ document.addEventListener("click",event => {
   if(origin) jumpToMessage(origin.dataset.originId);
   const channel=event.target.closest("[data-channel]");
   if(channel) switchChannel(channel.dataset.channel);
+  const guild=event.target.closest("[data-guild]");
+  if(guild){$("guildSelect").value=guild.dataset.guild;$("guildSelect").onchange();}
+  const author=event.target.closest("[data-author]");
+  if(author){
+    const messages=state.data.messages.filter(m=>m.guild===state.guild && m.author===author.dataset.author);
+    if(!messages.some(m=>m.channel===state.channel))state.channel=messages[0].channel;
+    clearFilters();$("messageSearch").value=author.dataset.author;state.view="channel";renderView();viewport.scrollTop=0;
+    if(matchMedia("(max-width:1100px)").matches)setMembers(false);
+  }
+  const quote=event.target.closest("[data-quote-id]");
+  if(quote){const message=state.data.messages.find(m=>m.id===quote.dataset.quoteId);$("composerInput").value=`Giải thích thông tin trong tin ${message.source_id}: ${message.text.slice(0,500)}`;$("composerInput").focus();}
+  const copy=event.target.closest("[data-copy-id]");
+  if(copy){const message=state.data.messages.find(m=>m.id===copy.dataset.copyId);navigator.clipboard.writeText(`${message.guild}/${message.channel}/${message.source_id} (${message.time} UTC+7)`).then(()=>toast("Đã sao chép mã nguồn."),()=>toast("Trình duyệt không cho phép sao chép."));}
   if(event.target.closest("#loadEarlier")){
     const oldHeight=viewport.scrollHeight;state.limit+=40;renderChannel();viewport.scrollTop=viewport.scrollHeight-oldHeight;
   }
@@ -267,11 +361,20 @@ $("clearFilters").onclick=()=>{clearFilters();if(state.data)renderChannel();};
 $("assistantView").onclick=()=>{if(!state.data)return;state.view="assistant";renderView();$("workspace").classList.remove("navigation-open");$("composerInput").focus();};
 $("reportsView").onclick=()=>{if(!state.data)return;state.view="reports";renderView();viewport.scrollTop=0;$("workspace").classList.remove("navigation-open");};
 $("questionForm").onsubmit=askQuestion;
+$("toggleFilters").onclick=()=>{state.filtersOpen=!state.filtersOpen;updateFilters();};
+$("toggleMembers").onclick=()=>setMembers(!$("workspace").classList.contains("members-open"));
+$("closeMembers").onclick=()=>setMembers(false);
 $("openPins").onclick=()=>setPanel(!$("workspace").classList.contains("panel-open"));
 $("closePins").onclick=()=>setPanel(false);
 $("openNavigation").onclick=()=>$("workspace").classList.add("navigation-open");
 $("closeNavigation").onclick=()=>$("workspace").classList.remove("navigation-open");
-document.addEventListener("keydown",e=>{if(e.key === "Escape"){setPanel(false);$("workspace").classList.remove("navigation-open");}});
+document.addEventListener("keydown",e=>{if(e.key === "Escape"){setPanel(false);if(matchMedia("(max-width:1100px)").matches)setMembers(false);$("workspace").classList.remove("navigation-open");}});
+$("railHome").onclick=()=>$("assistantView").click();
+$("railReports").onclick=()=>$("reportsView").click();
+$("railInfo").onclick=showArchiveInfo;
+$("openArchiveInfo").onclick=showArchiveInfo;
+$("closeArchiveInfo").onclick=()=>$("archiveInfo").close();
+$("archiveInfo").onclick=e=>{if(e.target===$("archiveInfo"))$("archiveInfo").close();};
 for(const [id,view] of [["savedTab","saved"],["importantTab","important"]]){
   $(id).onclick=()=>{
     state.pinView=view;state.panelLimit=30;
@@ -301,7 +404,7 @@ async function initialize(){
     $("refreshImportance").title=data.provider === "openrouter" ? "Phân tích tối đa 30 tin đang hiển thị" : "Cần API key OpenRouter";
     const guild=[...data.guilds].sort((a,b)=>b.count-a.count)[0];
     state.guild=guild.id;$("guildSelect").value=guild.id;$("guildSelect").onchange();
-    renderPins();setPanel(!window.matchMedia("(max-width: 1100px)").matches);
+    renderPins();setPanel(false);setMembers(!window.matchMedia("(max-width: 1100px)").matches);
   }catch(error){
     $("viewTitle").textContent="Chưa tải được Discord pack";
     viewport.innerHTML=`<div class="empty-state"><strong>Không có dữ liệu khả dụng</strong><p>${escapeHtml(error.message)}</p><button id="retryLoad" class="text-btn">Thử lại</button></div>`;
