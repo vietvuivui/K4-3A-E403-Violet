@@ -3,147 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Discord Bot Slash Command Demo</title>
+  <title>K4 · Discord Digest</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="discord-app">
-
-  <!-- Server rail -->
-  <aside class="server-rail">
-    <div class="server-pill active" title="Violet Team">V</div>
-    <div class="rail-sep"></div>
-    <div class="server-pill" title="K4 Workspace">K4</div>
-    <div class="server-pill add">+</div>
+<div id="workspace" class="workspace">
+  <aside class="navigation" aria-label="Điều hướng">
+    <header class="brand"><div class="brand-mark" aria-hidden="true">K4</div><div><strong>Discord Digest</strong><small>Không gian học tập K4</small></div><button id="closeNavigation" class="icon-btn mobile-only" aria-label="Đóng điều hướng" title="Đóng">×</button></header>
+    <label class="field-label" for="guildSelect">SERVER</label>
+    <select id="guildSelect" aria-label="Chọn server"></select>
+    <div id="guildStats" class="nav-caption"></div>
+    <nav class="view-navigation">
+      <button id="assistantView" class="nav-item"><span aria-hidden="true">✦</span>Trợ lý tra cứu</button>
+      <button id="reportsView" class="nav-item"><span aria-hidden="true">▤</span>Bản tin của bot<span id="reportCount" class="nav-count"></span></button>
+    </nav>
+    <div class="nav-section-title"><span>KÊNH ĐÃ THU THẬP</span><span id="channelCount"></span></div>
+    <nav id="channelList" class="channel-list" aria-label="Kênh"></nav>
+    <footer class="nav-footer"><span class="status-dot"></span><div><strong>Bản lưu đã ẩn danh</strong><small id="archiveRange"></small></div></footer>
   </aside>
 
-  <!-- Channel list -->
-  <aside class="channel-sidebar">
-    <div class="server-header">
-      <strong>Violet Team</strong>
-      <span>⌄</span>
-    </div>
-
-    <div class="channel-list">
-      <div class="category-title">TEXT CHANNELS <span>+</span></div>
-
-      <button class="channel-btn active" data-channel="daily-digest">
-        <span class="hash">#</span><span>daily-digest</span>
-      </button>
-      <button class="channel-btn" data-channel="general">
-        <span class="hash">#</span><span>general</span>
-      </button>
-      <button class="channel-btn" data-channel="class-announcement">
-        <span class="hash">#</span><span>class-announcement</span>
-      </button>
-      <button class="channel-btn" data-channel="project">
-        <span class="hash">#</span><span>project</span>
-      </button>
-      <button class="channel-btn" data-channel="backend">
-        <span class="hash">#</span><span>backend</span>
-      </button>
-
-      <div class="category-title voice-title">VOICE CHANNELS <span>+</span></div>
-      <button class="channel-btn">
-        <span>◖</span><span>Team Room</span>
-      </button>
-    </div>
-
-    <div class="user-panel">
-      <div class="avatar blue">D</div>
-      <div class="user-meta">
-        <strong>ThaiDuong</strong>
-        <small>Online</small>
-      </div>
-      <span class="panel-icons">🎙️ 🎧 ⚙️</span>
-    </div>
-  </aside>
-
-  <!-- Main chat -->
-  <main class="chat-main">
-    <header class="chat-header">
-      <div class="header-left">
-        <span class="header-hash">#</span>
-        <strong id="currentChannelTitle">daily-digest</strong>
-        <span class="header-divider"></span>
-        <span id="channelTopic">Hỏi AI bằng /bot + prompt</span>
-      </div>
-      <div class="header-right">
-        <span>🔔</span><span>📌</span><span>👥</span>
-        <div class="search-box">Search</div>
-        <span>❔</span>
-      </div>
+  <main class="main">
+    <header class="main-header">
+      <button id="openNavigation" class="icon-btn mobile-only" aria-label="Mở điều hướng" title="Điều hướng">☰</button>
+      <div class="heading"><div class="breadcrumb" id="breadcrumb">DISCORD K4</div><h1 id="viewTitle">Đang tải dữ liệu...</h1></div>
+      <span id="viewMeta" class="header-meta"></span>
+      <button id="openPins" class="icon-btn pins-toggle" aria-label="Tin đã ghim" title="Tin đã ghim" aria-controls="pinsPanel" aria-expanded="true"><span aria-hidden="true">📌</span><span id="pinCount">0</span></button>
     </header>
-
-    <section id="messagesViewport" class="messages-viewport"></section>
-
-    <!-- Slash suggestions -->
-    <div id="slashMenu" class="slash-menu hidden">
-      <div class="slash-title">COMMANDS MATCHING /</div>
-      <div class="slash-item selected">
-        <div class="slash-icon">/</div>
-        <div>
-          <strong>/bot</strong>
-          <span>Hỏi Daily Digest Bot bằng prompt tự nhiên</span>
-        </div>
+    <section id="archiveToolbar" class="archive-toolbar" aria-label="Bộ lọc tin nhắn">
+      <div class="search-field"><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" aria-label="Tìm trong kênh" placeholder="Tìm nội dung, mã tin, tác giả..." /></div>
+      <div class="filter-row">
+        <select id="dateFilter" aria-label="Ngày gửi"><option value="">Tất cả ngày</option></select>
+        <select id="authorFilter" aria-label="Loại tác giả"><option value="">Mọi tác giả</option><option value="human">Người viết</option><option value="bot">Bot</option></select>
+        <select id="topicFilter" aria-label="Chủ đề"><option value="">Mọi chủ đề</option></select>
+        <button id="clearFilters" class="icon-btn" aria-label="Xóa bộ lọc" title="Xóa bộ lọc">↺</button>
       </div>
-    </div>
-
-    <!-- Composer -->
-    <div class="composer-area">
-      <div class="composer">
-        <button class="circle-btn">＋</button>
-        <input id="composerInput"
-          placeholder="Message #daily-digest"
-          autocomplete="off" />
-        <span class="composer-icon">🎁</span>
-        <span class="composer-icon gif">GIF</span>
-        <span class="composer-icon">😊</span>
-      </div>
-      <div class="hint">Demo: gõ <b>/bot</b> rồi nhập câu hỏi, ví dụ “Ngày mai học ở đâu và mấy giờ?”</div>
-    </div>
+    </section>
+    <div id="resultBar" class="result-bar"><span id="resultCount"></span><span>UTC+7</span></div>
+    <section id="messagesViewport" class="messages-viewport" aria-label="Nội dung kênh"><p class="empty-state">Đang đọc Discord pack...</p></section>
+    <section class="composer-area">
+      <div class="composer-context"><label for="askScope">Phạm vi tra cứu</label><select id="askScope"><option value="channel">Kênh hiện tại</option><option value="guild">Server hiện tại</option><option value="all">Toàn bộ pack</option></select><span id="providerStatus"></span></div>
+      <form id="questionForm" class="composer"><input id="composerInput" maxlength="3000" aria-label="Câu hỏi cho trợ lý" placeholder="Hỏi về deadline, điểm danh, ghép đội..." autocomplete="off" required /><button id="sendMessage" class="send-btn" type="submit" aria-label="Gửi câu hỏi" title="Gửi câu hỏi">↑</button></form>
+    </section>
   </main>
 
-  <!-- Member list -->
-  <aside class="member-list">
-    <div class="member-group">ONLINE — 6</div>
-    <div class="member-row"><div class="avatar orange">T</div><span>Nguyễn Phát Thịnh</span><i></i></div>
-    <div class="member-row"><div class="avatar teal">V</div><span>Nguyễn Văn Quốc Việt</span><i></i></div>
-    <div class="member-row"><div class="avatar blue">D</div><span>Lê Nguyễn Thái Dương</span><i></i></div>
-    <div class="member-row"><div class="avatar pink">Y</div><span>Trần Thị Hải Yến</span><i></i></div>
-    <div class="member-row"><div class="avatar bot-avatar">AI</div><span>Daily Digest Bot</span><i></i></div>
-    <div class="member-row"><div class="avatar purple">P</div><span>Nguyễn Duy Phong</span><i></i></div>
-
-    <div class="member-group offline">OFFLINE — 1</div>
-    <div class="member-row dim"><div class="avatar gray">D</div><span>Nguyễn Thành Duy</span></div>
+  <aside id="pinsPanel" class="pins-panel" aria-label="Thông tin cần theo dõi">
+    <header class="panel-heading"><div><small>THEO DÕI</small><h2>Thông tin quan trọng</h2></div><button id="closePins" class="icon-btn" aria-label="Đóng bảng ghim" title="Đóng">×</button></header>
+    <div class="pins-tabs" role="tablist" aria-label="Loại thông tin"><button id="savedTab" role="tab" aria-selected="true" aria-controls="pinsList" class="active">Đã ghim <span id="savedCount">0</span></button><button id="importantTab" role="tab" aria-selected="false" aria-controls="pinsList">Quan trọng <span id="importantCount">0</span></button></div>
+    <div class="pins-filters"><input id="pinSearch" type="search" placeholder="Tìm tin đã lưu..." aria-label="Tìm thông tin đã lưu" /><select id="pinChannel" aria-label="Lọc kênh đã ghim"><option value="">Tất cả server / kênh</option></select></div>
+    <div class="analysis-status"><span id="analysisStatus">Phân loại cục bộ</span><button id="refreshImportance" class="text-btn" title="Phân tích tối đa 30 tin đang hiển thị">Phân tích AI</button></div>
+    <div id="pinsList" class="pins-list" role="tabpanel" aria-labelledby="savedTab"></div>
+    <footer class="panel-footer">Ghim được lưu trên trình duyệt này.</footer>
   </aside>
-
 </div>
-
-<!-- Correction modal -->
-<div id="correctionModal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-header">
-      <strong>Chỉnh sửa kết quả AI</strong>
-      <button id="closeCorrection">×</button>
-    </div>
-
-    <label>Thời gian</label>
-    <input id="editTime" value="08:30" />
-
-    <label>Phòng học</label>
-    <input id="editRoom" value="A305" />
-
-    <label>Địa điểm</label>
-    <input id="editLocation" value="Cơ sở chính" />
-
-    <div class="modal-actions">
-      <button id="cancelCorrection" class="btn secondary">Hủy</button>
-      <button id="saveCorrection" class="btn primary">Lưu correction</button>
-    </div>
-  </div>
-</div>
-
+<div id="toast" class="toast hidden" role="status"></div>
 <script src="app.js"></script>
 </body>
 </html>
