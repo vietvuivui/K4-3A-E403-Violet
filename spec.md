@@ -48,7 +48,8 @@
     2. R09: *"nhận được những thông tin thực sự quan trọng trong từn server"*
     3. R04: *"tổng hơp tin nhắn"*
     4. R10: *"Tối ưu các giao diện nhóm"*
-    - ⚠️ *Tự khai:* chỉ 4/11 người điền câu hỏi mở (chưa đủ ≥5 trích dẫn). Tin nhắn Discord của khoá là dữ liệu kín nên chuẩn B **chỉ nêu số liệu, không trích nguyên văn** trong repo công khai.
+    5. R03: *"No"*
+    - ⚠️ *Tự khai:* 5/11 người điền câu hỏi mở, trong đó chỉ 3 câu (R04, R06, R09) có góp ý liên quan trực tiếp đến việc theo dõi thông tin; R03 không có nội dung góp ý. Tin nhắn Discord của khoá là dữ liệu kín nên chuẩn B **chỉ nêu số liệu, không trích nguyên văn** trong repo công khai.
 
 ## §2. Impact & quyết định chọn
 - **Bảng impact** (số liệu từ khảo sát n = 11 và mining pack 12–14/09 ở §1):
