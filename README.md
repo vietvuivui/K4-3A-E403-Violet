@@ -6,17 +6,19 @@
 
 **Lớp:** 3A · **Phòng:** E403 · **Cụm:** 5 · **Track:** B2
 
-| Họ và Tên | Mã Học Viên | Vai trò chính | Phần việc đảm nhiệm trong dự án |
-|---|---|---|---|
-| Nguyễn Văn Quốc Việt | 2A202602973 | Nhóm trưởng · Product Owner | Chốt lát cắt, viết `spec.md` §1–§4 (impact, non-goals, automation, HAX/PAIR) · nộp CP1–CP5 · làm `demo-slides.pdf`, điều phối dry run |
-| Nguyễn Phát Thịnh | 2A202602645 | Research & Evidence | Mining `discord-pack` + chê bản tin bot hiện tại (số đếm, ≥5 ví dụ dẫn `msg_id`) · khảo sát ≥20 người · tìm ≥2 willing users |
-| Trần Thị Hải Yến  | 2A202602663 | Eval & QA | Viết `spec.md` §5–§7 (4 lớp chỗ khó, ≥8 kịch bản, quality bar) · dựng golden set ≥20 case trong `eval/`, chạy và phân tích kết quả · `validation/` |
-| Lê Nguyễn Thái Dương | 2A202602383 | AI Engineer · Prototype | Build `codebase/`: bản tin cho TA chạy end-to-end với lời gọi AI thật, lưu log · thể hiện 4 đường đi · quay video CP3 và video demo dự phòng CP5 |
+| Họ và Tên            | Mã Học Viên | Vai trò chính               | Phần việc đảm nhiệm trong dự án                                                                                                                                          |
+| -------------------- | ----------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Nguyễn Văn Quốc Việt | 2A202602973 | Nhóm trưởng · Product Owner | Chốt lát cắt, viết `spec.md` §1–§4 (impact, non-goals, automation, HAX/PAIR) · nộp CP1–CP5 · làm `demo-slides.pdf`, điều phối dry run                                    |
+| Nguyễn Phát Thịnh    | 2A202602645 | Research & Evidence         | Mining `discord-pack` + chê bản tin bot hiện tại (số đếm, ≥5 ví dụ dẫn `msg_id`) · khảo sát ≥20 người · tìm ≥2 willing users · quay video CP3 và video demo dự phòng CP5 |
+| Trần Thị Hải Yến     | 2A202602663 | Eval & QA                   | Viết `spec.md` §5–§7 (4 lớp chỗ khó, ≥8 kịch bản, quality bar) · dựng golden set ≥20 case trong `eval/`, chạy và phân tích kết quả · `validation/`                       |
+| Lê Nguyễn Thái Dương | 2A202602383 | AI Engineer · Prototype     | Build `codebase/`: bản tin cho TA chạy end-to-end với lời gọi AI thật, lưu log · thể hiện 4 đường đi                                                                     |
+
+🔗 **Link Video Demo Dự Phòng (CP5):** [https://drive.google.com/drive/folders/12HjXzDYupXpoqKiH1IZHLeeM5K3Mby3k?usp=sharing]
 
 > Nhóm copy nguyên file README này về repo của mình, rồi điền bảng trên. Cột **Phần việc đảm nhiệm** ghi càng cụ thể càng tốt.
 
 - Thời lượng: **47,5 giờ** từ phát đề đến thuyết trình (ca 3A) — LAB 5 (phát đề + build) · LEC 6 (tiếp tục build theo ca) · LAB 6 (vòng thi)
-- Nhóm: **3-4 người** · thi theo phòng (E403 / E402), chia cụm rồi chung kết phòng — xem *Thể thức thi*
+- Nhóm: **3-4 người** · thi theo phòng (E403 / E402), chia cụm rồi chung kết phòng — xem _Thể thức thi_
 - **Chia cụm theo bàn**, không cần chung đề tài. Chủ đề tự chọn trong khuôn khổ đề bài
 - Nhóm nhỏ thì **chọn lát cắt nhỏ**, và phải có **khảo sát nỗi đau thật** — đây là chỗ ăn điểm nặng nhất
 
@@ -27,37 +29,37 @@
 3. Viết spec theo **`03-ai-spec-template.md`** — deliverable trung tâm của cả sự kiện.
 4. Đọc **`04-rubric.md`** ngay từ đầu — biết trước bài được chấm theo tiêu chí nào.
 
-| File / thư mục | Nội dung |
-|---|---|
-| `01-challenge-brief.md` | Đề bài: bảng 5 track · lát cắt · ràng buộc chung · 5 tiêu chí nghiệm thu |
-| `02-guide.md` | Hướng dẫn 5 giai đoạn: khám phá → spec → build → đo & validate → demo |
-| `03-ai-spec-template.md` | Template AI Spec (nộp tại **hạn chốt spec** — xem Lịch) |
-| `04-rubric.md` | Rubric 100 điểm (25 nộp checkpoint + 67 chấm bài + 8 điểm R6) + checklist xác minh 6 mốc |
-| `tracks/` | **5 track**, mỗi đề cùng một khung mục: A VLearn Tutor · B Trợ lý Discord · C Lesson Studio · D Học tập thích ứng & tương tác · E Làn mở (trong phạm vi AI20k) — bắt đầu từ `tracks/README.md` |
-| `data/` | Dữ liệu thật đã ẩn danh: `vlearn-pack/` (chatlog VLearn tutor + 6 transcript bài giảng + 2 bộ slide bản hackathon) và **`discord-pack/` (tin nhắn Discord khoá 4 + bản tin bot)** — dùng để tìm bằng chứng và xây golden set. **Đọc `data/README.md` trước** |
-| `further-reading/` | Tài liệu tham khảo có tóm lược tiếng Việt: **Mom Test** (phỏng vấn), **PAIR Guidebook** (Google, 6 chương), **HAX Toolkit** (Microsoft, 18 nguyên tắc), **JTBD Playbook** + worksheet — bắt đầu từ `further-reading/README.md` |
+| File / thư mục           | Nội dung                                                                                                                                                                                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `01-challenge-brief.md`  | Đề bài: bảng 5 track · lát cắt · ràng buộc chung · 5 tiêu chí nghiệm thu                                                                                                                                                                                     |
+| `02-guide.md`            | Hướng dẫn 5 giai đoạn: khám phá → spec → build → đo & validate → demo                                                                                                                                                                                        |
+| `03-ai-spec-template.md` | Template AI Spec (nộp tại **hạn chốt spec** — xem Lịch)                                                                                                                                                                                                      |
+| `04-rubric.md`           | Rubric 100 điểm (25 nộp checkpoint + 67 chấm bài + 8 điểm R6) + checklist xác minh 6 mốc                                                                                                                                                                     |
+| `tracks/`                | **5 track**, mỗi đề cùng một khung mục: A VLearn Tutor · B Trợ lý Discord · C Lesson Studio · D Học tập thích ứng & tương tác · E Làn mở (trong phạm vi AI20k) — bắt đầu từ `tracks/README.md`                                                               |
+| `data/`                  | Dữ liệu thật đã ẩn danh: `vlearn-pack/` (chatlog VLearn tutor + 6 transcript bài giảng + 2 bộ slide bản hackathon) và **`discord-pack/` (tin nhắn Discord khoá 4 + bản tin bot)** — dùng để tìm bằng chứng và xây golden set. **Đọc `data/README.md` trước** |
+| `further-reading/`       | Tài liệu tham khảo có tóm lược tiếng Việt: **Mom Test** (phỏng vấn), **PAIR Guidebook** (Google, 6 chương), **HAX Toolkit** (Microsoft, 18 nguyên tắc), **JTBD Playbook** + worksheet — bắt đầu từ `further-reading/README.md`                               |
 
 ## Lịch — 6 checkpoint (ca 3A · 47,5 giờ)
 
-| Mốc | Cần hoàn thành | Hạn (ca 3A) |
-|---|---|---|
-| — | Khai mạc 17:30 · phát đề 18:00 | 16/9 |
-| **CP1** | Canvas 4 ô + đội trưởng + **link repo GitHub công khai** | **19:30** · 16/9 |
-| **CP2** | Cho thấy **luồng hoạt động** — bấm thử được, hoặc sơ đồ luồng | **21:00** · 16/9 |
+| Mốc     | Cần hoàn thành                                                         | Hạn (ca 3A)      |
+| ------- | ---------------------------------------------------------------------- | ---------------- |
+| —       | Khai mạc 17:30 · phát đề 18:00                                         | 16/9             |
+| **CP1** | Canvas 4 ô + đội trưởng + **link repo GitHub công khai**               | **19:30** · 16/9 |
+| **CP2** | Cho thấy **luồng hoạt động** — bấm thử được, hoặc sơ đồ luồng          | **21:00** · 16/9 |
 | **CP3** | **Video thao tác** 30 giây + **số đo** (thử bao nhiêu, đúng bao nhiêu) | **16:00** · 17/9 |
-| **CP4** | Chốt `spec.md` — **khoá chuẩn "đạt"** · tự khai phần chưa xong | **21:00** · 17/9 |
-| **CP5** | Slide PDF + **video demo dự phòng cho buổi pitch** — nộp cuối | **13:00** · 18/9 |
-| **CP6** | Thuyết trình · không nộp thêm | **17:30** · 18/9 |
+| **CP4** | Chốt `spec.md` — **khoá chuẩn "đạt"** · tự khai phần chưa xong         | **21:00** · 17/9 |
+| **CP5** | Slide PDF + **video demo dự phòng cho buổi pitch** — nộp cuối          | **13:00** · 18/9 |
+| **CP6** | Thuyết trình · không nộp thêm                                          | **17:30** · 18/9 |
 
 **CP1 đến CP5 mỗi mốc 5 điểm.** Nộp đúng hạn được đủ, nộp muộn là **0 điểm mốc đó** — không bù được bằng mốc khác.
 
 ## Làm bài lúc nào
 
-| | |
-|---|---|
-| **Thời gian tự làm** | Ngoài giờ học, và trong buổi **LEC ngày 17/9** |
-| **Coach hỗ trợ** | Trên lớp và trên Discord |
-| **Buổi LAB 18/9 · 17:30–21:00** | Đây là **vòng thi**, không phải giờ làm bài |
+|                                 |                                                |
+| ------------------------------- | ---------------------------------------------- |
+| **Thời gian tự làm**            | Ngoài giờ học, và trong buổi **LEC ngày 17/9** |
+| **Coach hỗ trợ**                | Trên lớp và trên Discord                       |
+| **Buổi LAB 18/9 · 17:30–21:00** | Đây là **vòng thi**, không phải giờ làm bài    |
 
 Hai phòng cùng ca dùng chung lịch mốc. Năm link form phát đủ từ đầu — xong mốc nào nộp mốc đó, không phải chờ.
 
@@ -68,6 +70,7 @@ Hai phòng cùng ca dùng chung lịch mốc. Năm link form phát đủ từ đ
 **Để làm gì:** chốt rõ **làm cho ai và giải vấn đề gì** trước khi bắt tay vào code. Bỏ qua bước này thì hay gặp cảnh làm xong mới nhận ra không ai cần đến.
 
 **Nộp:**
+
 - Canvas điền đủ 4 ô theo mẫu trong `01-challenge-brief.md`
 - Họ tên và **mã học viên của đội trưởng**
 - **Link repo GitHub** đã để công khai
@@ -82,6 +85,7 @@ Hai phòng cùng ca dùng chung lịch mốc. Năm link form phát đủ từ đ
 **Để làm gì:** nhìn được cả luồng từ đầu đến cuối — người dùng bấm gì trước, thấy gì sau, kết thúc ở đâu. Vẽ ra giấy thì phát hiện chỗ hổng trong mười phút; code xong mới thấy thì mất cả buổi sửa.
 
 **Nộp một trong ba thứ, thứ nào cũng được:**
+
 - **Bản mock bấm được** — Figma, trang tĩnh, Canva, bất cứ thứ gì click qua lại được
 - **Sơ đồ luồng** vẽ tay hay vẽ máy, miễn thấy rõ các bước
 - **Video quay màn hình** đi hết một lượt
@@ -108,10 +112,10 @@ Hai phòng cùng ca dùng chung lịch mốc. Năm link form phát đủ từ đ
 3. Đếm bao nhiêu câu ra kết quả đạt chuẩn nhóm tự đặt
 ```
 
-| Chưa đạt | Đạt |
-|---|---|
-| *"Sản phẩm chạy tốt"* | *"Thử 21 câu, 13 câu trả đúng có dẫn nguồn, 8 câu sai hoặc bịa"* |
-| *"Độ chính xác cao"* | *"Thử 30 file, 24 file tóm tắt đúng ý chính, 6 file bỏ sót"* |
+| Chưa đạt              | Đạt                                                              |
+| --------------------- | ---------------------------------------------------------------- |
+| _"Sản phẩm chạy tốt"_ | _"Thử 21 câu, 13 câu trả đúng có dẫn nguồn, 8 câu sai hoặc bịa"_ |
+| _"Độ chính xác cao"_  | _"Thử 30 file, 24 file tóm tắt đúng ý chính, 6 file bỏ sót"_     |
 
 **Số xấu vẫn được đủ điểm** — miễn là số thật. 13 trên 21 mà phân tích được vì sao 8 câu kia sai thì ăn điểm cao hơn "chạy tốt" không có gì chứng minh.
 
@@ -122,6 +126,7 @@ Hai phòng cùng ca dùng chung lịch mốc. Năm link form phát đủ từ đ
 **Để làm gì:** chốt **"thế nào là đạt"** trước khi biết kết quả. Đặt chuẩn sau khi đã thấy kết quả thì con số không nói lên điều gì — và người nghe cũng biết vậy.
 
 **Nộp:**
+
 - Link `spec.md` đã chốt — trong đó nhóm **tự chốt "thế nào là đạt"** cho sản phẩm mình
 - **Tự khai phần nào chưa làm xong**
 
@@ -136,6 +141,7 @@ Sau 21:00 hôm đó **không sửa chuẩn "đạt" được nữa**.
 **Để làm gì:** đảm bảo buổi pitch chạy được **dù mạng hỏng hay máy chết**. Đây cũng là hạn nộp cuối — sau mốc này không nộp thêm gì.
 
 **Nộp:**
+
 - **Slide 6 trang, xuất ra PDF** theo `02-guide.md` §5.1. Nộp PDF chứ không nộp link — link hay hỏng quyền đúng lúc cần
 - **Video demo dự phòng** — quay sẵn phần demo. Nếu hôm pitch mạng chết thì BTC chiếu video này và **không trừ điểm**
 
@@ -153,13 +159,13 @@ Giám khảo có thể hỏi **bất kỳ thành viên nào** về phần có t�
 
 ## Link nộp
 
-| Mốc | Form nộp |
-|---|---|
-| CP1 | *(cập nhật lúc khai mạc)* |
-| CP2 | *(cập nhật lúc khai mạc)* |
-| CP3 | *(cập nhật lúc khai mạc)* |
-| CP4 | *(cập nhật lúc khai mạc)* |
-| CP5 | *(cập nhật lúc khai mạc)* |
+| Mốc | Form nộp                  |
+| --- | ------------------------- |
+| CP1 | _(cập nhật lúc khai mạc)_ |
+| CP2 | _(cập nhật lúc khai mạc)_ |
+| CP3 | _(cập nhật lúc khai mạc)_ |
+| CP4 | _(cập nhật lúc khai mạc)_ |
+| CP5 | _(cập nhật lúc khai mạc)_ |
 
 > **Đội trưởng nộp form thay cả nhóm** — một phiếu cho cả nhóm ở mỗi mốc, không phải mỗi thành viên tự nộp.
 > **25 điểm nộp là điểm chung của nhóm**: mọi thành viên cùng được hoặc cùng mất.
@@ -199,20 +205,20 @@ Cả phòng bình chọn — mỗi người đánh giá từng đội một các
 
 **Giải theo phòng — mỗi lớp 5 đội, hai lớp 10 đội:**
 
-| Lớp | E403 | E402 | Tổng |
-|---|---|---|---|
-| 3A | Top 3 | Top 2 | 5 đội |
-| 3B | Top 3 | Top 2 | 5 đội |
+| Lớp | E403  | E402  | Tổng  |
+| --- | ----- | ----- | ----- |
+| 3A  | Top 3 | Top 2 | 5 đội |
+| 3B  | Top 3 | Top 2 | 5 đội |
 
 **Điểm thưởng cộng vào bài lab ngày 5 và ngày 6, cho mỗi thành viên:**
 
-| Ai được | Cộng |
-|---|---|
-| Giải Nhất của phòng | **+10** |
-| Giải Nhì của phòng | **+5** |
-| Giải Ba — chỉ E403 | **+3** |
-| Vào chung kết nhưng không có giải | **+2** |
-| Đội **đầu tư nhiều điểm nhất và sớm nhất** vào đội giải Nhất | **+2** |
+| Ai được                                                      | Cộng    |
+| ------------------------------------------------------------ | ------- |
+| Giải Nhất của phòng                                          | **+10** |
+| Giải Nhì của phòng                                           | **+5**  |
+| Giải Ba — chỉ E403                                           | **+3**  |
+| Vào chung kết nhưng không có giải                            | **+2**  |
+| Đội **đầu tư nhiều điểm nhất và sớm nhất** vào đội giải Nhất | **+2**  |
 
 Mỗi phòng E403 có **7 đội** được cộng điểm, E402 có **6 đội** — không chỉ riêng đội vô địch.
 
@@ -243,10 +249,10 @@ Nhóm chỉ cần lấy **đúng một file** từ repo này: `03-ai-spec-templa
 K4-<mã lớp>-<phòng>-<tên nhóm>
 ```
 
-| Ví dụ | Của nhóm nào |
-|---|---|
+| Ví dụ                   | Của nhóm nào                          |
+| ----------------------- | ------------------------------------- |
 | `K4-3A-E403-StudyPulse` | Lớp 3A · phòng E403 · nhóm StudyPulse |
-| `K4-3A-E402-LearnLoop` | Lớp 3A · phòng E402 · nhóm LearnLoop |
+| `K4-3A-E402-LearnLoop`  | Lớp 3A · phòng E402 · nhóm LearnLoop  |
 
 **Ba phần đầu bắt buộc đúng.** Phòng là phòng nhóm đang ngồi thi.
 
@@ -283,15 +289,15 @@ Tổng **100 điểm = 25 điểm nộp checkpoint + 67 điểm chấm bài nộ
 
 **67 điểm chấm + 8 điểm R6 — trên file trong repo, mỗi con điểm trỏ về một chỗ:**
 
-| Khối | Điểm | Chấm trên file nào |
-|---|---|---|
-| R1 · Bằng chứng & impact | 15 | `spec.md` §1-§2 + log khảo sát |
-| R2 · Lát cắt & thiết kế | 15 | `spec.md` §4 |
-| R3 · Chỗ khó & kịch bản rủi ro | 11 | `spec.md` §5-§6 |
-| R4 · Kiểm thử | 15 | `spec.md` §7 + `eval/` |
-| R5 · Prototype chạy được | 8 | `codebase/` + demo |
-| **R6 · Cho người ngoài dùng thử** | **8** | `validation/` |
-| R7 · Quy trình & repo | 3 | cấu trúc repo |
+| Khối                              | Điểm  | Chấm trên file nào             |
+| --------------------------------- | ----- | ------------------------------ |
+| R1 · Bằng chứng & impact          | 15    | `spec.md` §1-§2 + log khảo sát |
+| R2 · Lát cắt & thiết kế           | 15    | `spec.md` §4                   |
+| R3 · Chỗ khó & kịch bản rủi ro    | 11    | `spec.md` §5-§6                |
+| R4 · Kiểm thử                     | 15    | `spec.md` §7 + `eval/`         |
+| R5 · Prototype chạy được          | 8     | `codebase/` + demo             |
+| **R6 · Cho người ngoài dùng thử** | **8** | `validation/`                  |
+| R7 · Quy trình & repo             | 3     | cấu trúc repo                  |
 
 Ba khối nặng nhất — **R1, R2, R4** — đều nằm trong `spec.md`. Viết spec tử tế là ăn 45 trên 67 điểm.
 
@@ -311,20 +317,20 @@ Làm ở **CP5**, lưu trong thư mục `validation/`.
 
 **Phải có đủ bốn thứ:**
 
-| | |
-|---|---|
-| **5 người ngoài nhóm** dùng thử | trong đó **2 người đã khai từ CP1** |
-| **Quote nguyên văn** | chép đúng lời họ nói, kể cả viết sai chính tả |
-| **Bảng nhật ký** | ai thử · giao task gì · kẹt ở đâu · quote · quyết định |
-| **Ít nhất 1 thay đổi** | ghi vào **§9 Changelog** trong `spec.md`. Giữ nguyên thì nói rõ vì sao |
+|                                 |                                                                        |
+| ------------------------------- | ---------------------------------------------------------------------- |
+| **5 người ngoài nhóm** dùng thử | trong đó **2 người đã khai từ CP1**                                    |
+| **Quote nguyên văn**            | chép đúng lời họ nói, kể cả viết sai chính tả                          |
+| **Bảng nhật ký**                | ai thử · giao task gì · kẹt ở đâu · quote · quyết định                 |
+| **Ít nhất 1 thay đổi**          | ghi vào **§9 Changelog** trong `spec.md`. Giữ nguyên thì nói rõ vì sao |
 
 **Cuối bảng viết 4 dòng:** chủ đề lặp nhiều nhất · sẽ sửa gì trước demo · giữ nguyên gì và vì sao · gì để dành sau.
 
 **Quote thế nào mới ăn điểm:**
 
-| Chưa đạt | Đạt |
-|---|---|
-| *"Demo này ok rồi đấy"* | *"Mình muốn tìm thông tin về code cho ReAct"* |
+| Chưa đạt                | Đạt                                           |
+| ----------------------- | --------------------------------------------- |
+| _"Demo này ok rồi đấy"_ | _"Mình muốn tìm thông tin về code cho ReAct"_ |
 
 Bên trái là lời khen xã giao. Bên phải là lời người dùng nói **lúc đang cố làm việc** — nhìn vào biết ngay họ vướng ở đâu.
 
