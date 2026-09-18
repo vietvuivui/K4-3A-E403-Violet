@@ -1,10 +1,17 @@
 const { normalizeText } = require("./text");
-const STOP = new Set("toi minh em anh chi ban cac co la va cua cho voi thi duoc khong nhu the nao gi bao nhieu hoi ve xin mot nhung nay do a oi nhe nhe bot hv".split(" "));
+const STOP = new Set("toi minh em anh chi ban cac co la va cua cho voi thi duoc khong ko nhu the nao gi bao nhieu hoi ve xin mot nhung nay do a oi nhe nha ne ha vay bot hv".split(" "));
+// Common chat abbreviations; each expands to the words used in full announcements.
+const ABBREVIATIONS = { ws:["workshop"], dd:["diem","danh"], dl:["deadline"], lv:["level"], gv:["giang","vien"], tg:["thoi","gian"] };
+
+function queryTokens(question) {
+  const words = normalizeText(question).split(" ").flatMap(t => ABBREVIATIONS[t] || [t]);
+  return [...new Set(words.filter(t => t.length > 1 && !STOP.has(t)))];
+}
 
 function retrieve(question, messages, scope = {}) {
   const pool = messages.filter(m => (!scope.guild || m.guild === scope.guild) &&
     (!scope.channel || m.channel === scope.channel) && (!scope.date || m.date === scope.date));
-  const tokens = [...new Set(normalizeText(question).split(" ").filter(t => t.length > 1 && !STOP.has(t)))];
+  const tokens = queryTokens(question);
   if (!tokens.length) return [];
   const documents = pool.map(m => ({m, text:normalizeText(m.text)}));
   const weights = new Map(tokens.map(t => [t, Math.log(1 + pool.length / (1 + documents.filter(d => d.text.split(" ").includes(t)).length))]));
@@ -25,4 +32,4 @@ function retrieve(question, messages, scope = {}) {
   return [...selected.values()].slice(0,12);
 }
 
-module.exports = { retrieve };
+module.exports = { retrieve, queryTokens };

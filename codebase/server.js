@@ -1,7 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { answerQuestion } = require("./decision_engine");
+const { answerQuestion, DECISION_VERSION } = require("./decision_engine");
 const { getProvider } = require("./config");
 const { detectImportance, classifyLocal } = require("./importance");
 const { loadArchive } = require("./archive");
@@ -68,7 +68,8 @@ async function handleApi(req, res) {
     sendJson(res, 200, {
       ok: true,
       provider: getProvider(),
-      importance_provider: getProvider() === "openrouter" ? "openrouter" : "local-rules"
+      importance_provider: getProvider() === "openrouter" ? "openrouter" : "local-rules",
+      decision_version: DECISION_VERSION
     });
     return;
   }

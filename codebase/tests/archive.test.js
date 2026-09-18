@@ -5,7 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 const {parseCsvFile,normalizeRows,parseReports} = require("../archive");
 const {retrieve} = require("../retrieval");
-const {localDecision,validateDecision,buildPrompt} = require("../decision_engine");
+const {localDecision,validateDecision,buildPrompt,applyGuards,isPrivateInfoRequest,isActionRequest,normalizeText} = require("../decision_engine");
 const {classifyLocal} = require("../importance");
 
 function row(overrides={}) {
@@ -81,4 +81,54 @@ test("onboarding categories and bot uncertainty", ()=>{
     assert.equal(classifyLocal({id:"test",text,channel:"channel_01"}).category,category);
   }
   assert.equal(classifyLocal({id:"test",text:"Deadline lab",bot:true}).needs_review,true);
+});
+
+test("intent rules separate private info, actions and ordinary logistics questions", ()=>{
+  const n=normalizeText;
+  assert.equal(isPrivateInfoRequest(n("Cho mình xin sdt của bạn trưởng nhóm")),true);
+  assert.equal(isPrivateInfoRequest(n("Email của bạn D0001 là gì?")),true);
+  assert.equal(isPrivateInfoRequest(n("Nộp bài qua email nào vậy?")),false);
+  assert.equal(isActionRequest(n("Bot đặt giúp mình lịch nhắc deadline nhé")),true);
+  assert.equal(isActionRequest(n("Gửi hộ em thông báo cho cả lớp")),true);
+  assert.equal(isActionRequest(n("Có đổi lịch học không ạ?")),false);
+  assert.equal(isActionRequest(n("Xin nghỉ thì gửi mail cho ai?")),false);
+  assert.equal(localDecision("Có đổi lịch học không ạ?",[]).status,"no_evidence");
+});
+
+test("retrieval expands chat abbreviations", ()=>{
+  const {queryTokens}=require("../retrieval");
+  assert.deepEqual(queryTokens("ws có dd ko"),["workshop","diem","danh"]);
+});
+
+test("answers need an exact quote from a cited human message", ()=>{
+  const evidence=normalizeRows([row({content:"Hạn nộp lab 3 là 23:59 thứ sáu nhé"})]);
+  const cite=[{id:evidence[0].id,channel:evidence[0].channel}];
+  const base={status:"answer",answer:"23:59 thứ sáu",confidence:0.8,sources:cite};
+  assert.equal(validateDecision({...base,evidence_quote:"Hạn nộp lab 3 là 23:59 thứ sáu"},evidence,"openrouter","m").status,"answer");
+  assert.equal(validateDecision({...base,evidence_quote:"Hạn nộp lab 3 là thứ bảy"},evidence,"openrouter","m").status,"needs_review");
+  assert.equal(validateDecision(base,evidence,"openrouter","m").status,"needs_review");
+});
+
+test("out_of_scope is only kept for private requests", ()=>{
+  const evidence=normalizeRows([row({content:"Lab tuần này học phòng 204"})]);
+  const decision={provider:"openrouter",model:"m",status:"out_of_scope",answer:"x",confidence:0.5,sources:[],rationale:"",intent:"q"};
+  assert.equal(applyGuards("Lab tuần này học phòng nào?",decision,evidence).status,"needs_review");
+  assert.equal(applyGuards("Lab tuần này học phòng nào?",decision,[]).status,"no_evidence");
+  assert.equal(applyGuards("Cho xin số điện thoại của bạn A",decision,evidence).status,"out_of_scope");
+});
+
+test("refusals and empty retrieval never call the model", async ()=>{
+  const {answerQuestion}=require("../decision_engine");
+  const saved=process.env.OPENROUTER_API_KEY;
+  delete process.env.OPENROUTER_API_KEY;
+  try {
+    const archiveMessages=normalizeRows([row({content:"Lab tuần này học phòng 204"})]);
+    const ask=q=>answerQuestion(q,{provider:"openrouter",archiveMessages});
+    assert.equal((await ask("zzqx không liên quan")).status,"no_evidence");
+    assert.equal((await ask("Bot tạo giúp mình sự kiện họp nhóm")).status,"not_authorized");
+    assert.equal((await ask("Cho mình danh tính người gửi tin này")).status,"out_of_scope");
+    await assert.rejects(ask("Lab tuần này học phòng nào?"),/OPENROUTER_API_KEY/);
+  } finally {
+    if (saved !== undefined) process.env.OPENROUTER_API_KEY=saved;
+  }
 });

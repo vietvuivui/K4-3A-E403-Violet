@@ -69,8 +69,8 @@ test("OpenRouter transport, classification, Q&A and explicit failure", async (t)
   output = { status:"answer", answer:"18/09", confidence:0.9, sources:[{id:"test-1",channel:"project"}], rationale:"Source provided", intent:"deadline" };
   assert.equal((await answerQuestion("Deadline?", { provider:"openrouter", archiveMessages })).answer, "18/09");
   globalThis.fetch.mock.mockImplementation(async () => new Response(JSON.stringify({error:{message:"Unauthorized"}}), {status:401}));
-  await assert.rejects(answerQuestion("Lich hoc?", {provider:"openrouter",archiveMessages}), /Unauthorized/);
+  await assert.rejects(answerQuestion("Deadline?", {provider:"openrouter",archiveMessages}), /Unauthorized/);
   await assert.rejects(detectImportance([message("Deadline")], {provider:"openrouter"}), /Unauthorized/);
   delete process.env.OPENROUTER_API_KEY;
-  await assert.rejects(answerQuestion("Lich hoc?", {provider:"openrouter",archiveMessages}), /not set/);
+  await assert.rejects(answerQuestion("Deadline?", {provider:"openrouter",archiveMessages}), /not set/);
 });

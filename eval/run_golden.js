@@ -31,6 +31,12 @@ function parseCsv(text) {
 
 async function main() {
   const cases = parseCsv(fs.readFileSync(path.join(__dirname, "golden_set.csv"), "utf8").replace(/^﻿/, ""));
+  try {
+    const health = await (await fetch(`${BASE}/api/health`)).json();
+    console.log(`Server: provider=${health.provider} decision_version=${health.decision_version || "missing (old server)"}\n`);
+  } catch (error) {
+    console.log(`Server health unavailable: ${error.message}\n`);
+  }
   let pass = 0;
   const lines = ["| ID | Class | Expected | Actual | Pass |", "|---|---|---|---|---|"];
   for (const c of cases) {
