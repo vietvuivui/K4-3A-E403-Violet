@@ -184,6 +184,13 @@ function renderReports(){
   viewport.innerHTML = `<div class="reports-view"><div class="view-note"><strong>Bản tin do bot tạo</strong><span>Chưa được xác minh với tin gốc</span></div>${reports.map(r => `<article class="report"><header><h2>Bản tin ${formatDate(r.date)}</h2><span>${escapeHtml(r.guild)}</span></header><div class="report-content">${escapeHtml(r.text)}</div></article>`).join("") || '<p class="empty-state">Không có bản tin trong server này.</p>'}</div>`;
 }
 
+// Relative dates cannot be resolved against a historical archive, so remind the reader to check timestamps.
+const RELATIVE_TIME = /(hôm nay|hôm qua|ngày mai|tuần này|tuần sau|tuần trước|\bmai\b|\bnay\b)/i;
+function timeNote(question){
+  if(!RELATIVE_TIME.test(question) || !state.data?.dates?.length) return "";
+  return `<p class="time-note">Lưu ý: dữ liệu là bản lưu ${formatDate(state.data.dates[0])} – ${formatDate(state.data.dates.at(-1))}. "Hôm nay/ngày mai" không được quy đổi theo ngày thực tế, hãy xem ngày giờ trên thẻ nguồn.</p>`;
+}
+
 function sourceHtml(src){
   const message = state.data.messages.find(m => m.id === src.id);
   if(!message) return "";
@@ -198,7 +205,7 @@ function renderAssistant(){
   }
   viewport.innerHTML = `<div class="conversation">${state.conversations.map(item => {
     const decision = item.decision;
-    return `<article class="question-answer"><div class="question"><span>Bạn</span><p>${escapeHtml(item.question)}</p><small>${escapeHtml(item.scopeLabel)}</small></div><div class="answer"><strong>Trợ lý tra cứu</strong>${item.pending ? '<p class="pending">Đang tìm và đối chiếu nguồn...</p>' : item.error ? `<p class="error-text">${escapeHtml(item.error)}</p>` : `<span class="answer-status">${({answer:"Có nguồn",needs_review:"Cần đối chiếu",no_evidence:"Chưa có nguồn",out_of_scope:"Ngoài phạm vi",not_authorized:"Không có thẩm quyền"})[decision.status]}</span><p>${escapeHtml(decision.answer)}</p><small>${decision.provider === "local-rules" ? "Tra cứu cục bộ · Chưa tổng hợp bằng LLM" : "Phản hồi AI"}</small>${decision.sources.map(sourceHtml).join("")}`}</div></article>`;
+    return `<article class="question-answer"><div class="question"><span>Bạn</span><p>${escapeHtml(item.question)}</p><small>${escapeHtml(item.scopeLabel)}</small></div><div class="answer"><strong>Trợ lý tra cứu</strong>${item.pending ? '<p class="pending">Đang tìm và đối chiếu nguồn...</p>' : item.error ? `<p class="error-text">${escapeHtml(item.error)}</p>` : `<span class="answer-status">${({answer:"Có nguồn",needs_review:"Cần đối chiếu",no_evidence:"Chưa có nguồn",out_of_scope:"Ngoài phạm vi",not_authorized:"Không có thẩm quyền"})[decision.status]}</span><p>${escapeHtml(decision.answer)}</p><small>${decision.provider === "local-rules" ? "Tra cứu cục bộ · Chưa tổng hợp bằng LLM" : "Phản hồi AI"}</small>${timeNote(item.question)}${decision.sources.map(sourceHtml).join("")}`}</div></article>`;
   }).join("")}</div>`;
 }
 

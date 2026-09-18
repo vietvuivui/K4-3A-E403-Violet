@@ -83,7 +83,7 @@
 - **Hình thức thể hiện:** web app chạy local, giao diện mô phỏng Discord — server Node.js (`codebase/server.js`) + giao diện tĩnh (`codebase/prototype/`). Chạy: `cd codebase` → `npm.cmd start` → mở `http://127.0.0.1:5173` (hướng dẫn chi tiết: `codebase/README.md`).
 - **Luồng tương tác:**
   1. Học viên mở app, chọn server và kênh ở cột trái (dữ liệu đọc từ discord-pack của khoá, giữ nguyên giờ UTC+7, reply, mã tin).
-  2. Chọn **phạm vi tra cứu** cạnh ô chat: *Kênh hiện tại* / *Server hiện tại* / *Toàn bộ pack*.
+  2. Chọn **phạm vi tra cứu** cạnh ô chat: *Kênh hiện tại* / *Server hiện tại* (mặc định, đổi sau user testing) / *Toàn bộ pack*.
   3. Gõ câu hỏi vào ô "Hỏi Trợ lý K4…" — hoặc bấm nút "Hỏi trợ lý về tin này" trên một tin nhắn.
   4. **Truy xuất:** server chọn tối đa 12 tin liên quan theo từ khoá (6 tin điểm cao nhất + tin được reply và reply của chúng) trong phạm vi đã chọn.
   5. **Điểm quyết định AI:** LLM (OpenRouter, mặc định `openai/gpt-4o-mini`) chỉ nhận các tin đã truy xuất + câu hỏi, trả JSON gồm `status`, câu trả lời, `sources`. Server **kiểm tra lại** trước khi hiển thị: nguồn phải thuộc tập đã truy xuất (không cho bịa mã tin), `answer` bắt buộc có nguồn, nguồn chỉ từ bot → tự hạ xuống `needs_review`. Không có API key → chế độ tra cứu cục bộ: chỉ liệt kê tin liên quan, không giả lập câu trả lời.
@@ -100,7 +100,7 @@
   - *Chưa có / giới hạn:* chưa tích hợp vào Discord thật; truy xuất bằng từ khoá (không dùng embedding) nên câu hỏi ít từ khoá dễ ra `no_evidence`; chưa có chức năng người dùng sửa kết quả (correction); chưa có đăng nhập/phân quyền (chỉ chạy `127.0.0.1`).
 - **Automation:** [x] augment [ ] conditional [ ] automate
   - *Lý do theo cost-of-error:* trả lời sai deadline, lịch hay điểm danh khiến học viên nộp trễ, nghỉ nhầm, mất XP — hậu quả trực tiếp và khó sửa. Vì vậy AI chỉ **hỗ trợ tìm và tóm tắt có nguồn**; quyết định tin hay không thuộc về học viên sau khi xem tin gốc.
-  - *Chưa chọn conditional/automate:* Lượt 1 golden set mới đạt 50% (§7) và còn lỗi tự tin quá mức (trả `answer` khi đáng ra `needs_review`) → chưa đủ tin cậy để tự trả lời công khai hay tự gửi thông báo.
+  - *Chưa chọn conditional/automate:* golden set mới đạt 75% ở lượt 3 (vừa chạm ngưỡng, §7) và vẫn còn lỗi tự tin quá mức với câu hỏi quy định và nguồn mâu thuẫn → chưa đủ tin cậy để tự trả lời công khai hay tự gửi thông báo.
 - **§4b. Nguyên tắc đã áp dụng:**
 
   | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
@@ -161,21 +161,31 @@
   | Lượt | Ngày | Đúng trạng thái | ĐK1 (≥75%) | ĐK2 (từ chối đúng) | ĐK3 (không bịa) | Kết luận |
   |---|---|---|---|---|---|---|
   | 1 | 17/09 | **10/20 (50%)** | ❌ | ✅ 3/3 | ⚠️ Chưa đối chiếu thủ công | **CHƯA ĐẠT quality bar** |
+  | 2 | 18/09 | **13/20 (65%)** — code `v2-generic`, golden set v1 | ❌ | ✅ 3/3 | ✅ Kiểm tra trích dẫn tự động | **CHƯA ĐẠT quality bar** |
+  | 3 | 18/09 | **15/20 (75%)** — code `v2-generic`, golden set v2; chạy 3 lần, kết quả giống hệt | ✅ | ✅ 3/3 | ✅ Kiểm tra trích dẫn tự động | **ĐẠT quality bar** (vừa chạm ngưỡng) |
+
+  Model lượt 2–3: `openai/gpt-4o-mini` qua OpenRouter. Chi tiết từng case: [`eval/run_results.md`](eval/run_results.md).
 
   Theo nhóm case (lượt 1): Câu hỏi thật 6/10 · ① Nguồn sự thật 0/2 · ② Mơ hồ 0/2 · ③ Ngoài phạm vi 2/2 · ④ Đặc thù domain 1/2 · Edge case 1/2.
+  Theo nhóm case (lượt 3): Câu hỏi thật 7/10 · ① Nguồn sự thật 0/2 · ② Mơ hồ 2/2 · ③ Ngoài phạm vi 2/2 · ④ Đặc thù domain 2/2 · Edge case 2/2.
+
+- **Thay đổi giữa các lượt:**
+  - *Code (lượt 1 → 2):* luật an toàn chạy trước model; không tìm được tin → `no_evidence` không gọi model; prompt dạng cây quyết định 5 bước; `answer` bắt buộc có `evidence_quote` khớp nguyên văn tin của người (nếu không → `needs_review`) — **ĐK3 từ đây được đo tự động**; `out_of_scope` sai cho câu không hỏi thông tin cá nhân → `needs_review`/`no_evidence`; JSON sai → tra cứu cục bộ thay vì báo lỗi; hiểu từ viết tắt. Tất cả là luật chung, không dựa vào câu chữ của golden set.
+  - *Golden set (v1 → v2):* đối chiếu nhãn 10 case thật với phản hồi trong pack theo một luật cố định; chỉ #1 và #6 đổi sang `answer`. Mã tin căn cứ ở cột `evidence_msg_ids`, nhãn cũ ở `expected_status_v1`.
 
 - **Những lần chưa đạt sai ở đâu:**
-  1. **Tự tin quá mức** (#1, #2, #4): trả `answer` trong khi nhãn là `needs_review`. *Lưu ý:* các câu này có phản hồi của người trong pack, nên một phần lỗi có thể nằm ở **nhãn golden set chưa được đối chiếu với pack**, không hẳn ở AI.
-  2. **Nhầm "không có thông tin" thành "ngoài phạm vi"** (#8, #11, #12, #14, #19): trả `out_of_scope` thay vì `no_evidence`/`needs_review`/`answer` → cần làm rõ ranh giới hai nhãn trong prompt.
-  3. **Lỗi hệ thống** (#13): trả `error`, chưa xác định nguyên nhân (lỗi gọi API hoặc JSON không hợp lệ).
-  4. **Thiếu căn cứ khi có căn cứ** (#17): trả `no_evidence` — truy xuất từ khoá không tìm ra tin liên quan.
+  - *Lượt 1:* (1) tự tin quá mức #1, #2, #4; (2) nhầm "không có thông tin" thành `out_of_scope` #8, #11, #12, #14, #19; (3) lỗi hệ thống #13 (`error`); (4) #17 truy xuất không tìm ra tin liên quan.
+  - *Lượt 3 (còn 5 case):*
+    1. **Tự tin quá mức** (#2, #7): trả `answer` cho câu hỏi quy định và cho trường hợp có hai phản hồi mâu thuẫn — kiểm tra trích dẫn không bắt được vì câu trích là có thật.
+    2. **`gpt-4o-mini` vẫn trả `out_of_scope`** dù prompt cấm (#8, #11, #12); guard chặn được việc từ chối sai nhưng chưa phân biệt "có tin không liên quan" (`no_evidence`) với "có tin liên quan nhưng chưa chắc" (`needs_review`).
 
 - **⚠️ TỰ KHAI — phần chưa hoàn thành / hạn chế đã biết:**
   - Khảo sát mới có **n = 11** (chuẩn A yêu cầu ≥ 20); chuẩn B chỉ công bố số liệu, không trích nguyên văn do dữ liệu kín.
-  - Golden set **lệch nhãn**: 14/20 case là `needs_review`, chỉ 1 case `answer` → chưa kiểm tra đủ khả năng trả lời đúng khi có căn cứ.
-  - Golden set **chưa có cột nguồn mong đợi** (`msg_id`) → ĐK3 chưa đo tự động; nhãn các case thật (#1–#10) chưa đối chiếu lại với pack.
-  - Một số case dùng thời gian tương đối ("mai", "tuần này") trên dữ liệu cũ → kết quả có thể dao động giữa các lần chạy.
-  - Mới chạy **1 lượt**; chưa ghi lại cấu hình provider/model của lượt 1; chưa đo độ ổn định qua nhiều lần chạy.
+  - Golden set vẫn **lệch nhãn**: 11/20 case là `needs_review`, 3 case `answer`.
+  - **Nhãn golden set v2 được đối chiếu sau khi đã thấy kết quả lượt 2** (có luật cố định và mã tin căn cứ, áp cho cả 10 case thật). Lượt 3 đạt 75% là **vừa chạm ngưỡng**; chưa có bộ kiểm tra độc lập ngoài golden set.
+  - ĐK3 mới kiểm tra tự động bằng trích dẫn; nội dung từng câu `answer` chưa được đọc lại thủ công.
+  - Một số case dùng thời gian tương đối ("mai", "tuần này") trên dữ liệu cũ.
+  - Chưa ghi lại cấu hình provider/model của lượt 1.
   - **Chưa build correction** (sửa trực tiếp câu trả lời); chưa tích hợp Discord thật; truy xuất chỉ theo từ khoá.
 
 ## §8. Phân công & kế hoạch
@@ -209,3 +219,6 @@
 | 16/09 (CP1–CP2) | Spec đầu tiên: lát cắt `/bot` hỏi logistics, prototype mock dữ liệu seed trong `app.js`, 4 đường đi với nhãn `HIGH CONFIDENCE` / `NEEDS REVIEW` / `NO EVIDENCE` | Cần cho thấy luồng hoạt động ở CP2 |
 | 17/09 (CP3) | Chuyển sang dữ liệu discord-pack thật + gọi LLM qua OpenRouter; 5 trạng thái; thêm `eval/golden_set.csv` (20 case) và lượt chạy 1 (50%) | Yêu cầu CP3: video thao tác + số đo |
 | 17/09 (CP4) | Điền §1–§3 (khảo sát n = 11, số liệu mining), §2 bảng impact 4 ứng viên; viết lại §4, §6 theo app thật (bỏ `/bot`, correction modal, dữ liệu seed); §5 đổi sang 5 trạng thái + thêm case nguồn chỉ từ bot và prompt injection; §7 gộp thành **một** quality bar 3 điều kiện + tự khai | Spec cũ mô tả bản mock không còn khớp code; §7 cũ có hai định nghĩa "đạt" mâu thuẫn; lượt 1 thấp hơn chuẩn → phải khai thật |
+| 18/09 sáng | Code `v2-generic`: luật an toàn trước model, không có tin → `no_evidence` không gọi model, prompt cây quyết định, `answer` bắt buộc trích dẫn nguyên văn, sửa `out_of_scope` sai, xử lý lỗi mềm, từ viết tắt. Lượt 2: 13/20 (65%) | Nguyên nhân gốc của lỗi lượt 1 (§7). Một bản thử khác dùng luật khớp đúng từ khoá của golden set đạt 20/20 nhưng **bị nhóm loại** vì học thuộc đề, không phản ánh chất lượng thật |
+| 18/09 sáng | Golden set v2: đối chiếu nhãn 10 case thật với pack theo luật cố định; #1, #6 → `answer`; thêm cột `evidence_msg_ids`, `label_reason`, `expected_status_v1`. Lượt 3: 15/20 (75%), chạy 3 lần giống hệt | Lượt 2 cho thấy model trích đúng câu trả lời có thật ở #1, #6 → nhãn v1 sai. Đối chiếu làm sau khi thấy kết quả — đã tự khai ở §7 |
+| 18/09 trưa | Phạm vi tra cứu mặc định → *Server hiện tại*; thêm dòng nhắc mốc thời gian khi câu hỏi có "hôm nay/ngày mai/tuần này" | User testing (`validation/user_testing_log.md`): Nguyễn Duy Phong đề xuất đổi mặc định vì nút nhỏ, khó thấy; Phong, Nguyễn Thành Duy và người thử ẩn danh đều nhầm với thời gian tương đối |
